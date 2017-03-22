@@ -50,14 +50,14 @@ class EpsilonGreedyPolicy(Policy):
         self.epsilon = 1.0
         self.decay = 0.99
 
-    def select_action(self, state):
-        self.epsilon *= 0.99
-        if np.random.rand() < self.epsilon:
+    def select_action(self, state, eps):
+        if np.random.rand() < eps:
             return np.random.randint(low=0, high=4)
 
         values = self.action_scorer(state)
         candidates = np.argwhere(values == np.amax(values))
-        return np.random.choice(candidates.flatten())
+        # return np.random.choice(candidates.flatten())
+        return np.argmax(values)
 
 
 class QAgent(object):
@@ -71,14 +71,16 @@ class QAgent(object):
         self.gamma = 0.0
         self.initial_Q = 0.0
         self.epsilon = 0.0
-        self.max_episodes = 100000
+        self.max_episodes = 10000
         self.max_steps = 10000
         self.wins = 0
 
+        self.history = np.zeros(self.max_episodes)
+
+        self.set_parameters(self.get_default_parameters())
         self.featurizer = NullFeaturizer(self.env)
         self.Q = np.ones((self.n_actions, self.featurizer.features_shape)) * self.initial_Q
 
-        self.set_parameters(self.get_default_parameters())
 
         self.policy = EpsilonGreedyPolicy(lambda s: self.Q[:, s])
 
@@ -86,7 +88,7 @@ class QAgent(object):
         return {
             'alpha': 0.3,
             'gamma': 0.99,
-            'initial_Q': 0.0,
+            'initial_Q': 1.0,
             'epsilon': 1.0
         }
 
@@ -101,6 +103,7 @@ class QAgent(object):
         return copy.deepcopy(self.params)
 
     def episode(self, i_episode):
+        self.epsilon *= 0.0
         creward = 0
         obs = self.env.reset()
         state = self.featurizer.transform(obs)
@@ -113,7 +116,11 @@ class QAgent(object):
             if i_episode == self.max_episodes - 1:
                 self.env.render()
 
-            action = self.policy.select_action(state)
+            explore = np.random.random() < self.epsilon
+            if explore:
+                action =  np.random.randint(0, self.n_actions)
+            else:
+                action = np.argmax(self.Q[:, state])
 
             new_obs, reward, done, _ = self.env.step(action)
 
@@ -125,7 +132,8 @@ class QAgent(object):
             creward += reward
 
             if done:
-                print('Episode {} finished with score {} after {} steps'.format(i_episode, creward, t))
+                self.history[i_episode] = creward
+                print('Episode {} finished with score {} after {} steps {}'.format(i_episode, reward, t, self.epsilon))
                 if reward == 1:
                     self.wins += 1
                 return
@@ -158,4 +166,7 @@ if __name__ == '__main__':
             a = np.argmax(q[:, y*4 +x])
             print(a, end='')
         print()
+
+    score = np.mean(agent.history[-100:])
+    print(score)
 
