@@ -43,7 +43,7 @@ class QAgent(object):
             state = new_state
 
             if done:
-                print('Finished after {} steps with score {}'.format(t, creward))
+                print('Finished after {} steps with score {} eps{}'.format(t, creward, self.parameters['epsilon']))
                 # print(self.parameters)
                 break
 
