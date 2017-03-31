@@ -17,12 +17,15 @@ class Policy(object):
 
 
 class BoltzmannPolicy(Policy):
-    def __init__(self, action_scorer, temperature=10, decay=0.999):
+    def __init__(self, action_scorer, temperature=20, decay=0.99):
         self.action_scorer = action_scorer
         self.decay = decay
         self.temperature = temperature
+        self.episodes = 0
 
     def select_action(self, state):
+        if self.episodes > 3000:
+            return np.argmax(self.action_scorer(state))
         probs = np.divide(
             np.exp(np.divide(self.action_scorer(state), self.temperature)),
             np.sum(
@@ -32,6 +35,7 @@ class BoltzmannPolicy(Policy):
         return np.random.choice(range(probs.shape[0]), p=probs)
 
     def episode_end(self):
+        self.episodes += 1
         self.temperature *= self.decay
         if self.temperature < 0.01:
             self.temperature = 0.01
