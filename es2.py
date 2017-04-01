@@ -158,9 +158,9 @@ for _ in range(150000):
     r_history.append(val_score)
 
     b = np.mean(r_history[-HISTORY_SIZE:])
-    b_200 = np.mean(r_history[-10:])
+    b_200 = np.mean(r_history[-20:])
 
-    if b_200 > 195:
+    if b_200 > 200:
         test_phase=True
         continue
 
