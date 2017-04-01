@@ -34,7 +34,7 @@ class SarsaAgent(object):
     def construct(self):
         self.featurizer = NullFeaturizer(self.env)
         self.Q = np.ones((self.n_actions, self.featurizer.shape)) * self.initial_Q
-        self.policy = GreedyPolicy(lambda s: self.Q[:, s])
+        # self.policy = GreedyPolicy(lambda s: self.Q[:, s])
         # self.policy = EpsilonGreedyPolicy(lambda s: self.Q[:, s])
         self.policy = BoltzmannPolicy(lambda s: self.Q[:, s])
 
@@ -106,11 +106,11 @@ class SarsaAgent(object):
 
 
 if __name__ == '__main__':
-    env = gym.make('FrozenLake-v0')
+    env = gym.make('FrozenLake8x8-v0')
     env = wrappers.Monitor(env, '/tmp/fl/2', force=True)
-    agent = SarsaAgent(env, max_episodes=10000)
+    agent = SarsaAgent(env, max_episodes=5000)
     agent.set_parameters({
-            'alpha': 0.4,
+            'alpha': 0.2,
             'gamma': 0.99,
             'initial_Q': 0.0
     })

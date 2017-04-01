@@ -23,5 +23,9 @@ class Agent(abc.ABC):
         self.parameters.update(params)
 
     @abc.abstractmethod
+    def get_default_parameters(self):
+        pass
+
+    @abc.abstractmethod
     def run(self, max_steps=None, max_episodes=1000):
         pass
