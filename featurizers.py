@@ -1,11 +1,11 @@
-from __future__ import print_function, division
-
 import abc
 
 
-class Featurizer(object):
-    __metaclass__ = abc.ABCMeta
+class InvalidFeaturizerError(ValueError):
+    """Such featurizer does not exist"""
 
+
+class Featurizer(abc.ABC):
     @abc.abstractmethod
     def transform(self, observation):
         """Transform an observation into features"""
@@ -14,6 +14,13 @@ class Featurizer(object):
     @abc.abstractmethod
     def shape(self):
         """Return features size"""
+
+    @classmethod
+    def create_featurizer(cls, name, env):
+        if name == 'null':
+            return NullFeaturizer(env)
+
+        raise InvalidFeaturizerError(name)
 
 
 class NullFeaturizer(Featurizer):

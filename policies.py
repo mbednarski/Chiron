@@ -1,19 +1,26 @@
-from __future__ import print_function, division
-
 import abc
 
 import numpy as np
 
 
-class Policy(object):
-    __metaclass__ = abc.ABCMeta
+class InvalidPolicyError(ValueError):
+    """Such policy does not exist"""
 
+
+class Policy(abc.ABC):
     @abc.abstractmethod
     def select_action(self, state):
         pass
 
-    def episode_end(self):
+    def on_episode_end(self, i_episode):
         pass
+
+    @classmethod
+    def create_policy(cls, name, *args):
+        if name == 'greedy':
+            return GreedyPolicy(*args)
+
+        raise InvalidPolicyError(name)
 
 
 class BoltzmannPolicy(Policy):
@@ -34,7 +41,7 @@ class BoltzmannPolicy(Policy):
         )
         return np.random.choice(range(probs.shape[0]), p=probs)
 
-    def episode_end(self):
+    def on_episode_end(self):
         self.episodes += 1
         self.temperature *= self.decay
         if self.temperature < 0.01:
@@ -65,5 +72,5 @@ class EpsilonGreedyPolicy(Policy):
         candidates = np.argwhere(values == np.amax(values))
         return np.random.choice(candidates.flatten())
 
-    def episode_end(self):
+    def on_episode_end(self, i_episode):
         self.epsilon *= self.decay

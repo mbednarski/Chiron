@@ -6,21 +6,33 @@ assert sys.version_info >= (3, 5)
 
 
 class Agent(abc.ABC):
-    def __init__(self, env, parameters):
-        self.parameters = dict()
-        self.set_parameters(parameters)
+    def __init__(self, env, parameters=None):
         self.env = env
+        self._parameters = dict()
+        if parameters is None:
+            parameters = self.get_default_parameters()
+        self.set_parameters(parameters)
 
     @property
     @abc.abstractmethod
     def name(self):
         pass
 
+    @abc.abstractmethod
+    def _construct(self):
+        pass
+
+    def _on_parameters_set(self):
+        pass
+
     def get_parameters(self):
-        return copy.deepcopy(self.parameters)
+        return copy.deepcopy(self._parameters)
 
     def set_parameters(self, params):
-        self.parameters.update(params)
+        if params is None: return
+        self._parameters.update(params)
+        self._on_parameters_set()
+        self._construct()
 
     @abc.abstractmethod
     def get_default_parameters(self):
