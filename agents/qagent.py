@@ -31,6 +31,8 @@ class QAgent(Agent):
 
         self.policy = Policy.create_policy(self._parameters['policy'], lambda s: self.Q[:, s])
 
+        self.monitor.add_buffer('episode_reward')
+
     def get_default_parameters(self):
         return {
             'alpha': 0.5,
@@ -62,7 +64,8 @@ class QAgent(Agent):
             episode_reward += reward
 
             if done:
-                print('Episode {} finished with score {} after {} steps'.format(i_episode, reward, t))
+                print('Episode {} finished with score {} after {} steps'.format(i_episode, episode_reward, t))
+                self.monitor.append_episode('episode_reward', episode_reward)
                 return
 
     def learn(self, state, new_state, action, reward, done):
@@ -76,6 +79,7 @@ class QAgent(Agent):
     def run(self, max_steps=None, max_episodes=1000):
         for i_episode in range(max_episodes):
             self.episode(i_episode, max_steps=max_steps)
+        self.monitor.dump()
 
     @property
     def name(self):

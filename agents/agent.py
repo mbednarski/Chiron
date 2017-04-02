@@ -2,6 +2,8 @@ import sys
 import abc
 import copy
 
+from monitor import Monitor
+
 assert sys.version_info >= (3, 5)
 
 
@@ -9,6 +11,7 @@ class Agent(abc.ABC):
     def __init__(self, env, parameters=None):
         self.env = env
         self._parameters = dict()
+        self.monitor = Monitor()
         if parameters is None:
             parameters = self.get_default_parameters()
         self.set_parameters(parameters)
@@ -33,6 +36,7 @@ class Agent(abc.ABC):
         self._parameters.update(params)
         self._on_parameters_set()
         self._construct()
+        self.monitor.write_info(self, self.env)
 
     @abc.abstractmethod
     def get_default_parameters(self):
