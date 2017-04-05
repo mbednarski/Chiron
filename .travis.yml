@@ -1,3 +1,4 @@
+language: python
 
 # sudo false implies containerized builds
 sudo: false
