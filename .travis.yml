@@ -12,7 +12,7 @@ env:
     # List package dependencies for conda
     - CONDA_DEPS="pytest numpy scipy matplotlib jupyter seaborn"
     # package name for test invocation
-    - PACKAGENAME="mypackage"
+    - PACKAGENAME="test_agents"
 
 before_install:
 # Here we download miniconda and install the dependencies
