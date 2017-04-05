@@ -58,6 +58,11 @@ class Monitor(object):
     def append_episode(self, name, value):
         self.buffers[name].append(value)
 
+    def append_episode_dict(self, data):
+        for k, v in data.items():
+            self.buffers[k].append(v)
+
+
     def dump(self):
         for _, v in self.buffers.items():
             v.dump()

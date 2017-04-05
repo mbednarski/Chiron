@@ -119,7 +119,7 @@ class Plotter(object):
 
 
 def main():
-    root_dir = '/home/xevaquor/code/chiron/agents/monitor'
+    root_dir = r'C:\p\github\Chiron\agents\monitor'
     p = Plotter(root_dir)
     p.select_latest_session()
     p.append(RollingAverageSeries('episode_reward', '10 avg reward', 10))
