@@ -1,0 +1,36 @@
+
+# sudo false implies containerized builds
+sudo: false
+
+python:
+  - 3.5
+  - 3.6
+
+env:
+  global:
+    # List package dependencies for conda
+    - CONDA_DEPS="pytest numpy scipy matplotlib jupyter seaborn"
+    # package name for test invocation
+    - PACKAGENAME="mypackage"
+
+before_install:
+# Here we download miniconda and install the dependencies
+- export MINICONDA=$HOME/miniconda
+- export PATH="$MINICONDA/bin:$PATH"
+- hash -r
+- wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+- bash miniconda.sh -b -f -p $MINICONDA
+- conda config --set always_yes yes
+- conda update conda
+- conda info -a
+- conda create -n testenv python=$TRAVIS_PYTHON_VERSION
+- source activate testenv
+- conda install $CONDA_DEPS
+- conda install -c https://conda.anaconda.org/kne pybox2d
+- pip install gym
+
+install:
+- python setup.py install
+
+script:
+- pytest $PACKAGENAME
