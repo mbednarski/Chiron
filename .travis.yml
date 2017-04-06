@@ -9,7 +9,7 @@ python:
 env:
   global:
     # List package dependencies for conda
-    #- CONDA_DEPS="pytest numpy scipy matplotlib jupyter seaborn"
+    - CONDA_DEPS="pytest numpy scipy matplotlib seaborn"
     # package name for test invocation
     - PACKAGENAME="chiron"
 
@@ -25,7 +25,7 @@ before_install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda create -n testenv python=$TRAVIS_PYTHON_VERSION
-  - source activate tesntenv
+  - source activate testenv
   - conda install -c https://conda.anaconda.org/kne pybox2d
   - pip install requirements.txt
 
