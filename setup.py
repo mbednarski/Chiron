@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name='chiron',
     version='',
-    packages=['chiron.tests', 'chiron.agents'],
+    packages=['chiron', 'chiron.tests', 'chiron.agents'],
     url='',
     license='',
     author='Mateusz Bednarski',
