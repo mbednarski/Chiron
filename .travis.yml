@@ -1,19 +1,10 @@
 language: python
-
-# sudo false implies containerized builds
-sudo: false
-
 python:
-  - 3.5
-
-env:
-  global:
-    # List package dependencies for conda
-    - CONDA_DEPS="pytest numpy scipy matplotlib seaborn"
-    # package name for test invocation
-    - PACKAGENAME="chiron"
-
-before_install:
+  - "3.5"
+install:
+  - sudo apt-get update
+  # We do this conditionally because it saves us some downloading if the
+  # version is the same.
   - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
       wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
     else
@@ -24,11 +15,14 @@ before_install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
-  - conda create -n testenv python=$TRAVIS_PYTHON_VERSION
-  - source activate testenv
-  - conda install -c https://conda.anaconda.org/kne pybox2d
-  - pip install -r requirements.txt
+  # Useful for debugging any issues with conda
+  - conda info -a
+
+  # Replace dep1 dep2 ... with your dependencies
+  - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy seaborn
+  - source activate test-environment
   - pip install gym
+  - python setup.py install
 
 script:
 - pytest $PACKAGENAME
