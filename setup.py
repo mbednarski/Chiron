@@ -2,8 +2,8 @@ from distutils.core import setup
 
 setup(
     name='chiron',
-    version='0.0.1',
-    packages=['agents', 'test_agents'],
+    version='',
+    packages=['chiron.agents', 'chiron.test_agents'],
     url='',
     license='',
     author='Mateusz Bednarski',
