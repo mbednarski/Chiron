@@ -26,7 +26,8 @@ install:
   - conda create -q -n test-environment python=$TRAVIS_PYTHON_VERSION matplotlib numpy seaborn
   - source activate test-environment
   - pip install gym
-  - python setup.py install
 
 script:
-- pytest $PACKAGENAME
+- pytest chiron
+- pwd
+- ls
