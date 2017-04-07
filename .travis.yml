@@ -28,6 +28,7 @@ before_install:
   - source activate testenv
   - conda install -c https://conda.anaconda.org/kne pybox2d
   - pip install -r requirements.txt
+  - pip install gym
 
 script:
 - pytest $PACKAGENAME
