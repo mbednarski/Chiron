@@ -4,7 +4,7 @@ import json
 
 import numpy as np
 
-import misc
+from chiron import util
 
 
 class PersistentBuffer(object):
@@ -47,10 +47,10 @@ class PersistentBuffer(object):
 
 
 class Monitor(object):
-    def __init__(self, basedir='monitor', save_interval=10.0):
+    def __init__(self, basedir='monitor', save_interval=30.0):
         self.save_interval = save_interval
         self.buffers = {}
-        self.rootdir = misc.make_now_path(basedir)
+        self.rootdir = util.make_now_path(basedir)
 
     def add_buffer(self, name):
         self.buffers[name] = PersistentBuffer(name, basedir=self.rootdir)

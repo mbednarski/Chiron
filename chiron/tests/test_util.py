@@ -1,4 +1,4 @@
-import agents.util as au
+import chiron.agents.util as au
 import gym
 
 
@@ -7,6 +7,7 @@ def test_get_space_state_is_discrete():
     assert au.space_state_is_discrete(env1)
     env2 = gym.make('CartPole-v0')
     assert not au.space_state_is_discrete(env2)
+
 
 def test_get_action_space_is_discrete():
     env1 = gym.make('CartPole-v0')

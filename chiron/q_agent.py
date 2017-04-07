@@ -94,7 +94,7 @@ class QAgent(object):
 
 
 if __name__ == '__main__':
-    env = gym.make('Taxi-v2')
+    env = gym.make('FrozenLake-v0')
     env = wrappers.Monitor(env, '/tmp/fl/2', force=True)
     agent = QAgent(env, max_episodes=10000)
     agent.set_parameters({

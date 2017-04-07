@@ -101,7 +101,7 @@ class SarsaAgent(object):
     def game(self):
         for i_episode in range(self.max_episodes):
             self.episode(i_episode)
-            self.policy.episode_end()
+            self.policy.on_episode_end()
             # self.alpha *= 0.993
 
 

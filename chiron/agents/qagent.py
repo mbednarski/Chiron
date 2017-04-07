@@ -1,12 +1,11 @@
-from agents.agent import Agent
-import agents.util as au
-
 import itertools
 import numpy as np
 import gym
 
-from featurizers import NullFeaturizer, Featurizer
-from policies import EpsilonGreedyPolicy, GreedyPolicy, Policy
+from chiron.agents.agent import Agent
+import chiron.agents.util as au
+from chiron.featurizers import Featurizer
+from chiron.policies import Policy
 
 np.seterr('raise')
 
@@ -110,5 +109,5 @@ if __name__ == '__main__':
         },
         'featurizer': 'null'
     })
-    agent.run(max_steps=10000, max_episodes=50000)
+    agent.run(max_steps=10000, max_episodes=500)
     env.close()
