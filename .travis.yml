@@ -1,4 +1,8 @@
 language: python
+
+env:
+  - PACKAGENAME=chiron
+
 python:
   - "3.5"
 install:
