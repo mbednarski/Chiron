@@ -1,7 +1,6 @@
-depencencies:
+name: stats
+dependencies:
   - numpy
-  - scipy
-  - matplotlib
   - seaborn
-  - pip:
+  pip:
     - gym
