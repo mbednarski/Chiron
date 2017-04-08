@@ -1,4 +1,12 @@
 dependencies:
   - numpy
+  - pytest
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
   - pip:
       - gym
+      - codecov
+      - pytest
+      - pytest-cov

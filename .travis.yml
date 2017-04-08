@@ -6,13 +6,6 @@ sudo: false
 python:
   - 3.5
 
-env:
-  global:
-    # List package dependencies for conda
-    - CONDA_DEPS="pytest numpy scipy matplotlib jupyter seaborn"
-    # package name for test invocation
-    - PACKAGENAME="test_agents"
-
 before_install:
 # Here we download miniconda and install the dependencies
 - export MINICONDA=$HOME/miniconda
@@ -23,11 +16,9 @@ before_install:
 - conda config --set always_yes yes
 - conda update conda
 - conda info -a
-- conda create -n testenv python=$TRAVIS_PYTHON_VERSION
+- conda create -n testenv -f environment.yml python=$TRAVIS_PYTHON_VERSION
 - source activate testenv
-- conda install $CONDA_DEPS
 - conda install -c https://conda.anaconda.org/kne pybox2d
-- pip install gym codecov pytest pytest-cov
 
 install:
 - python setup.py install
