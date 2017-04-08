@@ -29,6 +29,6 @@ install:
 
 script:
 - pip freeze
-- pytest chiron
+- pytest .
 - pwd
 - ls

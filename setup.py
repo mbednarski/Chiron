@@ -5,8 +5,8 @@ from setuptools import find_packages
 setup(
     name='chiron',
     version='',
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
+    packages=find_packages('.'),
+    package_dir={'': '.'},
     url='',
     license='',
     author='Mateusz Bednarski',
