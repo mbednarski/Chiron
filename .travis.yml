@@ -16,7 +16,7 @@ before_install:
 - conda config --set always_yes yes
 - conda update conda
 - conda info -a
-- conda create -n testenv -f environment.yml python=$TRAVIS_PYTHON_VERSION
+- conda env create -n testenv -f environment.yml python=$TRAVIS_PYTHON_VERSION
 - source activate testenv
 - conda install -c https://conda.anaconda.org/kne pybox2d
 
