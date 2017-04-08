@@ -1,0 +1,8 @@
+name: chiron-env
+depencencies:
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
+  - pip:
+    - gym
