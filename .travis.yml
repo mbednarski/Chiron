@@ -29,6 +29,7 @@ install:
 
 script:
 - pip freeze
-- pytest .
+- python setup.py install
+- pytest
 - pwd
 - ls
