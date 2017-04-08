@@ -28,6 +28,7 @@ install:
   - source activate chiron-env
 
 script:
+- pip freeze
 - pytest chiron
 - pwd
 - ls
