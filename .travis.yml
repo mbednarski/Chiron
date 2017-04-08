@@ -27,10 +27,11 @@ before_install:
 - source activate testenv
 - conda install $CONDA_DEPS
 - conda install -c https://conda.anaconda.org/kne pybox2d
-- pip install gym
+- pip install gym codecov
 
 install:
 - python setup.py install
 
 script:
 - pytest
+- codecov
