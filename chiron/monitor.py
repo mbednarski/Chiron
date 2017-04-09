@@ -29,7 +29,7 @@ class PersistentBuffer(object):
         self.n_file += 1
         self.last_save_time = time()
 
-    def have_to_dump(self):
+    def _have_to_dump(self):
         if self.pointer >= self.MAX_BUFFER:
             return True
 
@@ -39,7 +39,7 @@ class PersistentBuffer(object):
         return False
 
     def append(self, value):
-        if self.have_to_dump():
+        if self._have_to_dump():
             self.dump()
 
         self.buffer[self.pointer] = value
@@ -62,7 +62,6 @@ class Monitor(object):
         for k, v in data.items():
             self.buffers[k].append(v)
 
-
     def dump(self):
         for _, v in self.buffers.items():
             v.dump()
@@ -73,6 +72,3 @@ class Monitor(object):
 
         with open(os.path.join(self.rootdir, 'agent.json'), 'w') as f:
             json.dump(data, f, indent=4)
-
-
-
