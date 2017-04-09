@@ -45,6 +45,20 @@ class PersistentBuffer(object):
         self.buffer[self.pointer] = value
         self.pointer += 1
 
+    @staticmethod
+    def read_location(location):
+        files = [os.path.join(location, x) for x in os.listdir(location)]
+        files.sort()
+        values = None
+        for f in files:
+            fcontent = np.load(f)
+            if values is None:
+                values = fcontent
+                continue
+            values = np.vstack((values, fcontent))
+
+        return values
+
 
 class Monitor(object):
     def __init__(self, basedir='monitor', save_interval=30.0):
