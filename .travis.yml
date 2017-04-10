@@ -20,6 +20,7 @@ before_install:
 - echo "Python version var"
 - echo $TRAVIS_PYTHON_VERSION
 - conda env create -n testenv -f environment.yml python=$TRAVIS_PYTHON_VERSION
+- conda install -n testenv python=$TRAVIS_PYTHON_VERSION
 - source activate testenv
 #- conda install -c https://conda.anaconda.org/kne pybox2d
 
