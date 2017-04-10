@@ -24,5 +24,6 @@ install:
 - python setup.py install
 
 script:
-- pytest --cov=.
+- python --version
+- python -m pytest --cov=.
 - codecov
