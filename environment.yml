@@ -8,6 +8,7 @@ dependencies:
   - matplotlib
   - seaborn
   - pybox2d
+  - python=3.5
   - pip:
       - gym
       - codecov
