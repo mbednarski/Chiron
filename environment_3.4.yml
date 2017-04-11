@@ -1,0 +1,16 @@
+channels:
+  - kne
+dependencies:
+  - numpy
+  - pytest
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
+  - pybox2d
+  - python=3.4
+  - pip:
+      - gym
+      - codecov
+      - pytest
+      - pytest-cov
