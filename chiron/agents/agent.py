@@ -1,10 +1,7 @@
-import sys
 import abc
 import copy
 
 from chiron.monitor import Monitor
-
-assert sys.version_info >= (3, 5)
 
 
 class Agent(abc.ABC):

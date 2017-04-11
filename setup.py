@@ -11,5 +11,5 @@ setup(
     license='',
     author='Mateusz Bednarski',
     author_email='',
-    description=''
+    description='', install_requires=['numpy', 'gym']
 )

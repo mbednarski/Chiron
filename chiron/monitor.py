@@ -81,7 +81,10 @@ class Monitor(object):
             v.dump()
 
     def write_info(self, agent, env):
-        data = {'name': agent.name}
+        data = {
+            'name': agent.name,
+            'env': env.spec.id
+        }
         data.update(agent.get_parameters())
 
         with open(os.path.join(self.rootdir, 'agent.json'), 'w') as f:
