@@ -1,15 +1,20 @@
 import os
 import datetime
-from pprint import pprint
+import abc
 
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-import abc
+import sys
 
+import logging
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
 
-class SeriesBase(object):
+class SeriesBase(abc.ABC):
     def __init__(self, name, friendly_name=None):
         self.name = name
         self._location = None
@@ -31,14 +36,22 @@ class SeriesBase(object):
 
         return values
 
+    @abc.abstractmethod
+    def _get_data(self):
+        pass
+
+    def plot(self, axis, **kwargs):
+        data = self._get_data()
+        axis.plot(data, label=self.friendly_name, **kwargs)
+        axis.legend()
+
 
 class RawSeries(SeriesBase):
+    def _get_data(self):
+        return self._read_values()
+
     def __init__(self, name, friendly_name=None):
         super().__init__(name, friendly_name)
-
-    def plot(self):
-        data = self._read_values()
-        plt.plot(data)
 
 
 class RollingAverageSeries(SeriesBase):
@@ -46,10 +59,10 @@ class RollingAverageSeries(SeriesBase):
         super().__init__(name, friendly_name)
         self.window = window
 
-    def plot(self):
+    def _get_data(self):
         data = self._read_values()
         data = self._compute_rolling_average(data, self.window)
-        plt.plot(data)
+        return data
 
     def _compute_rolling_average(self, array, window):
         avgs = np.zeros_like(array)
@@ -59,28 +72,31 @@ class RollingAverageSeries(SeriesBase):
 
 
 class MaxSeries(SeriesBase):
+    def _get_data(self):
+        data = self._read_values()
+        data = self._compute_max(data)
+        return data
+
     def __init__(self, name, friendly_name):
         super().__init__(name, friendly_name)
 
-    def plot(self):
-        data = self._read_values()
-        data = self._compute_max(data)
-        plt.plot(data)
 
     def _compute_max(self, data):
         maxs = np.zeros_like(data)
         for i in range(maxs.shape[0]):
-            maxs[i] = np.max(data[:i+1])
+            maxs[i] = np.max(data[:i + 1])
         return maxs
 
 
 class Plotter(object):
-    def __init__(self, root_directory):
+    def __init__(self, root_directory, shape=(1, 1)):
+        logger.info("")
         self._root_directory = root_directory
         self._session_location = None
         self._session_datetime = None
         self._series_to_plot = []
         self._series_locations = {}
+        self.fig, self.axes = plt.subplots(shape[0], shape[1])
 
     def select_session(self):
         raise NotImplementedError()
@@ -93,7 +109,7 @@ class Plotter(object):
              datetime.datetime.strptime(x[0], '%Y-%m-%d_%H_%M_%S'))
             for x
             in ls
-            ]
+        ]
         parsed.sort(key=lambda x: x[2])
 
         latest = parsed[-1]
@@ -107,26 +123,26 @@ class Plotter(object):
         ls = filter(lambda x: os.path.isdir(x[1]), ls)
         return dict(list(ls))
 
-    def append(self, series):
+    def append(self, series, axis=1):
         series.set_location(self._series_locations[series.name])
-        self._series_to_plot.append(series)
+        self._series_to_plot.append((series, axis))
 
     def plot(self):
-        for s in self._series_to_plot:
-            s.plot()
-        plt.legend([s.friendly_name for s in self._series_to_plot])
+        for s, axis in self._series_to_plot:
+            s.plot(self.axes[axis])
         plt.show()
 
 
 def main():
-    root_dir = r'C:\p\github\Chiron\agents\monitor'
-    p = Plotter(root_dir)
+    root_dir = r'C:\p\github\Chiron\chiron\agents\monitor'
+    p = Plotter(root_dir, shape=(2, 1))
     p.select_latest_session()
-    p.append(RollingAverageSeries('episode_reward', '10 avg reward', 10))
-    p.append(RollingAverageSeries('episode_reward', '50 avg reward', 50))
-    p.append(RollingAverageSeries('episode_reward', '100 avg reward', 100))
-    p.append(RollingAverageSeries('episode_reward', '200 avg reward', 200))
-    p.append(MaxSeries('episode_reward', 'max reward'))
+    p.append(RollingAverageSeries('episode_reward', '10 avg reward', 10), 0)
+    p.append(RollingAverageSeries('episode_reward', '50 avg reward', 50), 0)
+    p.append(RollingAverageSeries('episode_reward', '100 avg reward', 100), 0)
+    p.append(RollingAverageSeries('episode_reward', '200 avg reward', 200), 0)
+    p.append(MaxSeries('episode_reward', 'max reward'), 0)
+    p.append(RawSeries('epsilon', 'epsilon'), 1)
     p.plot()
 
 

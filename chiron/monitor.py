@@ -8,7 +8,7 @@ from chiron import util
 
 
 class PersistentBuffer(object):
-    def __init__(self, name, basedir, shape=(1,), save_interval=1.0):
+    def __init__(self, name, basedir, shape=(1,), save_interval=10.0):
         self.MAX_BUFFER = 10000
         self.save_interval = save_interval
         self.pointer = 0
