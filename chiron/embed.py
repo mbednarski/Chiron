@@ -15,7 +15,8 @@ import random
 import matplotlib
 # Make sure that we are using QT5
 import zmq
-
+from collections import defaultdict
+import numpy as np
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtCore, QtWidgets
 
@@ -27,10 +28,28 @@ progname = os.path.basename(sys.argv[0])
 progversion = "0.1"
 
 
-port = 6587
-context = zmq.Context()
-socket = context.socket(zmq.PAIR)
-socket.bind('tcp://*:{}'.format(port))
+class OnlineReceiver:
+    def __init__(self):
+        self.port = 6587
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.PAIR)
+        self.socket.bind('tcp://*:{}'.format(self.port))
+        self.buffers = defaultdict(lambda: [])
+
+    def fetch(self):
+        try:
+            while True:
+                msg = self.socket.recv_pyobj(zmq.NOBLOCK)
+                key = msg[0]
+                value = msg[1]
+                self.buffers[key].append(value)
+        except zmq.ZMQError as e:
+            print(e)
+
+    def get_data(self):
+        return [(key, np.array(value)) for key, value in self.buffers.items()]
+
+
 
 class MyMplCanvas(FigureCanvas):
     """Ultimately, this is a QWidget (as well as a FigureCanvasAgg, etc.)."""
@@ -58,7 +77,7 @@ class MyStaticMplCanvas(MyMplCanvas):
 
     def compute_initial_figure(self):
         t = arange(0.0, 3.0, 0.01)
-        s = sin(2*pi*t)
+        s = sin(2 * pi * t)
         self.axes.plot(t, s)
 
 
@@ -72,23 +91,19 @@ class MyDynamicMplCanvas(MyMplCanvas):
         timer.start(1000)
         self.idx = []
         self.data = []
+        self.receiver = OnlineReceiver()
+
 
     def compute_initial_figure(self):
         self.axes.plot([0, 1, 2, 3], [1, 2, 0, 4], 'r')
 
     def update_figure(self):
-        try:
-            while True:
-                msg = socket.recv_pyobj(zmq.NOBLOCK)
-                self.idx.append(msg[0])
-                self.data.append(msg[1])
-        except zmq.ZMQError as e:
-            print(e)
-        # Build a list of 4 random integers between 0 and 10 (both inclusive)
-        l = [random.randint(0, 10) for i in range(4)]
+        self.receiver.fetch()
         self.axes.cla()
-        self.axes.plot(self.idx, self.data)
+        for key, value in self.receiver.get_data():
+            self.axes.plot(value, label=key)
         self.draw()
+        # self.statusBar
 
 
 class ApplicationWindow(QtWidgets.QMainWindow):
@@ -140,7 +155,7 @@ modified versions may be distributed without limitation.
 
 This is modified from the embedding in qt4 example to show the difference
 between qt4 and qt5"""
-                                )
+                                    )
 
 
 qApp = QtWidgets.QApplication(sys.argv)
@@ -149,4 +164,4 @@ aw = ApplicationWindow()
 aw.setWindowTitle("%s" % progname)
 aw.show()
 sys.exit(qApp.exec_())
-#qApp.exec_()
+# qApp.exec_()

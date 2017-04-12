@@ -8,7 +8,7 @@ context = zmq.Context()
 socket = context.socket(zmq.PAIR)
 print('Connecting...')
 socket.connect("tcp://localhost:{}".format(port))
-print('Connected')
+# print('Connected')
 
 i = 0
 

@@ -3,8 +3,17 @@ from time import time
 import json
 
 import numpy as np
+import zmq
 
 from chiron import util
+
+
+class OnlineBuffer:
+    # def __init__(self, name):
+
+
+    def append(self, value):
+        self.socket.send_pyobj([self.name, value], zmq.NOBLOCK)
 
 
 class PersistentBuffer(object):
@@ -64,18 +73,30 @@ class Monitor(object):
     def __init__(self, basedir='monitor', save_interval=30.0):
         self.save_interval = save_interval
         self.buffers = {}
+        self.online_buffers = {}
         self.rootdir = util.make_now_path(basedir)
+
+        self.port = 6587
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.PAIR)
+        print('Connecting...')
+        self.socket.connect("tcp://localhost:{}".format(self.port))
 
     def add_buffer(self, name):
         self.buffers[name] = PersistentBuffer(name, basedir=self.rootdir)
 
     def append_episode(self, name, value):
         self.buffers[name].append(value)
+        self.socket.send_pyobj([name, value], zmq.NOBLOCK)
 
     def append_episode_dict(self, data):
         for k, v in data.items():
             self.buffers[k].append(v)
+            self.socket.send_pyobj([k, v], zmq.NOBLOCK)
 
+    def close(self):
+        # self.socket
+        pass
     def dump(self):
         for _, v in self.buffers.items():
             v.dump()
