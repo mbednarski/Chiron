@@ -8,11 +8,27 @@ import matplotlib.pyplot as plt
 import sys
 
 import logging
+
 logger = logging.getLogger(__name__)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
+
+
+class SeriesTransformer(abc.ABC):
+    @abc.abstractmethod
+    def transform(self, data):
+        pass
+
+class Vizualizer:
+    def __init__(self):
+        series = []
+
+    def append(self, series):
+
+
+
 
 class SeriesBase(abc.ABC):
     def __init__(self, name, friendly_name=None):
@@ -79,7 +95,6 @@ class MaxSeries(SeriesBase):
 
     def __init__(self, name, friendly_name):
         super().__init__(name, friendly_name)
-
 
     def _compute_max(self, data):
         maxs = np.zeros_like(data)
