@@ -5,4 +5,4 @@ import gym
 def test_qagent():
     env = gym.make('FrozenLake-v0')
     qagent = QAgent(env)
-    qagent.run()
+    qagent.run(max_steps=100, max_episodes=100)
