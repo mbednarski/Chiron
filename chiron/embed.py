@@ -17,6 +17,9 @@ import matplotlib
 import zmq
 from collections import defaultdict
 import numpy as np
+
+from chiron.plotter import Vizualizer
+
 matplotlib.use('Qt5Agg')
 from PyQt5 import QtCore, QtWidgets
 
@@ -92,6 +95,7 @@ class MyDynamicMplCanvas(MyMplCanvas):
         self.idx = []
         self.data = []
         self.receiver = OnlineReceiver()
+        self.vis = Vizualizer()
 
 
     def compute_initial_figure(self):
@@ -100,8 +104,10 @@ class MyDynamicMplCanvas(MyMplCanvas):
     def update_figure(self):
         self.receiver.fetch()
         self.axes.cla()
+
         for key, value in self.receiver.get_data():
-            self.axes.plot(value, label=key)
+            self.vis.plot(value, 1, key)
+
         self.draw()
         # self.statusBar
 
