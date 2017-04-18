@@ -79,6 +79,7 @@ class Monitor(object):
         self.port = 6587
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
+        self.socket.linger = 15000
         print('Connecting...')
         self.socket.connect("tcp://localhost:{}".format(self.port))
 
@@ -95,8 +96,8 @@ class Monitor(object):
             self.socket.send_pyobj([k, v], zmq.NOBLOCK)
 
     def close(self):
-        # self.socket
         pass
+
     def dump(self):
         for _, v in self.buffers.items():
             v.dump()
