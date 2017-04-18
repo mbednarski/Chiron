@@ -79,7 +79,7 @@ class Monitor(object):
         self.port = 6587
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PAIR)
-        self.socket.linger = 15000
+        self.socket.setsockopt(zmq.LINGER, 20000)
         print('Connecting...')
         self.socket.connect("tcp://localhost:{}".format(self.port))
 
@@ -88,15 +88,16 @@ class Monitor(object):
 
     def append_episode(self, name, value):
         self.buffers[name].append(value)
-        self.socket.send_pyobj([name, value], zmq.NOBLOCK)
+        # self.socket.send_pyobj([name, value], zmq.NOBLOCK)
 
     def append_episode_dict(self, data):
         for k, v in data.items():
             self.buffers[k].append(v)
-            self.socket.send_pyobj([k, v], zmq.NOBLOCK)
+            # self.socket.send_pyobj([k, v], zmq.NOBLOCK)
 
     def close(self):
-        pass
+        self.socket.close()
+        self.context.term()
 
     def dump(self):
         for _, v in self.buffers.items():

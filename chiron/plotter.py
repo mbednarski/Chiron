@@ -21,14 +21,6 @@ class SeriesTransformer(abc.ABC):
     def transform(self, data):
         pass
 
-class Vizualizer:
-    def __init__(self):
-        series = []
-
-    def append(self, series):
-
-
-
 
 class SeriesBase(abc.ABC):
     def __init__(self, name, friendly_name=None):

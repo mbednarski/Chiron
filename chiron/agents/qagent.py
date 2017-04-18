@@ -94,6 +94,10 @@ class QAgent(Agent):
     def name(self):
         return 'Q-learning agent'
 
+    def close(self):
+        self.monitor.close()
+        self.env.close()
+
 
 if __name__ == '__main__':
     env = gym.make('Taxi-v2')
