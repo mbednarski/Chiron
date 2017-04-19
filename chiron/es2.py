@@ -34,6 +34,7 @@ alpha_u = alpha
 HISTORY_SIZE = 50
 
 
+
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
     e_x = np.exp(x - np.max(x))
