@@ -7,7 +7,9 @@ import matplotlib as plt
 import logging
 import matplotlib.pyplot as plt
 import itertools
-    
+import multiprocessing as mp
+from joblib import Parallel, delayed
+import time
 
 logging.disable(logging.CRITICAL)
 np.seterr('raise')
@@ -16,7 +18,7 @@ problem = 'LunarLander-v2'
 env = gym.make(problem)
 
 validation_env = gym.make(problem)
-validation_env = gym.wrappers.Monitor(validation_env, directory='/tmp/es/2',force=True)
+validation_env = gym.wrappers.Monitor(validation_env, directory='/tmp/es/2', force=True)
 
 n_features = env.observation_space.shape[0]
 n_actions = env.action_space.n
@@ -24,7 +26,7 @@ n_actions = env.action_space.n
 n_hidden = 32
 n_hidden2 = 32
 
-P = (n_features +1)*n_hidden + (n_hidden+1)*n_hidden2 + (n_hidden2+1) * n_actions# number of parameters
+P = (n_features + 1) * n_hidden + (n_hidden + 1) * n_hidden2 + (n_hidden2 + 1) * n_actions  # number of parameters
 N = 500  # number of histories
 
 T = np.zeros((P, N))
@@ -34,7 +36,6 @@ alpha = 0.0001
 alpha_sigma = alpha * 0.1
 alpha_u = alpha
 HISTORY_SIZE = 50
-
 
 
 def softmax(x):
@@ -71,18 +72,18 @@ def choose_action(a1):
 
 
 def model(theta, state):
-    w, b,w2,b2,w3,b3 = unpack(theta)
+    w, b, w2, b2, w3, b3 = unpack(theta)
 
     z = state.dot(w) + b
     a1 = np.tanh(z)
 
-    z2 = a1.dot(w2) +b2
+    z2 = a1.dot(w2) + b2
     a2 = np.tanh(z2)
 
-    z3 = a2.dot(w3) +b3
+    z3 = a2.dot(w3) + b3
     a3 = np.tanh(z3)
 
-    action =  choose_action(a3)
+    action = choose_action(a3)
     # if action != 0:
     #     print('x')
 
@@ -106,7 +107,6 @@ def evaluate_policy(theta, env=None, render=False, episode_number=0):
             arr = env.render(mode='rgb_array')
             frames.append(arr)
 
-
         state = new_state
         creward += reward
 
@@ -114,7 +114,7 @@ def evaluate_policy(theta, env=None, render=False, episode_number=0):
             if render and episode_number != 0:
                 fname = 'vid/lunarlander_{}'.format(episode_number)
                 arr = np.array(frames)
-                np.save(fname,arr)
+                np.save(fname, arr)
             return creward
 
 
@@ -136,6 +136,11 @@ b_200 = []
 test_phase = False
 test_iterations = 200
 
+
+def singleiter(theta):
+    r = evaluate_policy(theta)
+    return r
+
 for _ in range(150000):
     if test_phase:
         val = evaluate_policy(u, validation_env, render=True)
@@ -147,11 +152,25 @@ for _ in range(150000):
     theta = np.zeros((N, P))
     r = np.zeros(N)
     assert theta.shape == (N, P)
+    starttime = time.time()
     for n in range(N):
         theta[n, :] = np.random.normal(u, sigma)
-        r[n] = evaluate_policy(theta[n])
+    # for n in range(N):
+    #     theta[n, :] = np.random.normal(u, sigma)
+    #     r[n] = evaluate_policy(theta[n])
 
-    T = theta.T - np.repeat(np.array([u]).T,N,axis=1)
+
+    results = Parallel(n_jobs=3)(
+        delayed(singleiter)(theta[n]) for n in range(N)
+    )
+
+    r = np.array(results)
+    # theta = np.array([x[0] for x in results])
+
+    elapsed = time.time() - starttime
+    print('Elapsed time: {}'.format(elapsed))
+
+    T = theta.T - np.repeat(np.array([u]).T, N, axis=1)
 
     S = np.divide(np.square(T.T) - np.square(sigma),
                   sigma).T
@@ -161,14 +180,14 @@ for _ in range(150000):
     r = r - b
     r = r.T
 
-    val_score = evaluate_policy(u, validation_env, render=True, episode_number=_+1)
+    val_score = evaluate_policy(u, validation_env, render=True, episode_number=_ + 1)
     r_history.append(val_score)
 
     b = np.mean(r_history[-HISTORY_SIZE:])
     b_200 = np.mean(r_history[-20:])
 
     if b_200 > 200:
-        test_phase=True
+        test_phase = True
         continue
 
     u += alpha_u * np.matmul(T, r)
@@ -187,4 +206,3 @@ for _ in range(150000):
 
     # b = np.mean(r_history[-HISTORY_SIZE:])
 validation_env.close()
-
