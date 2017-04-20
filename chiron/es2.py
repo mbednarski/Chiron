@@ -6,6 +6,8 @@ import numpy as np
 import matplotlib as plt
 import logging
 import matplotlib.pyplot as plt
+import itertools
+    
 
 logging.disable(logging.CRITICAL)
 np.seterr('raise')
@@ -87,29 +89,37 @@ def model(theta, state):
     return action
 
 
-def evaluate_policy(theta, env=None, render=False):
+def evaluate_policy(theta, env=None, render=False, episode_number=0):
     if env is None:
         env = gym.make(problem)
     creward = 0
     state = env.reset()
 
-    while True:
+    frames = []
+
+    for t in itertools.count():
         action = model(theta, state)
 
         new_state, reward, done, _ = env.step(action)
 
-        if render:
-            env.render()
+        if render and episode_number != 0:
+            arr = env.render(mode='rgb_array')
+            frames.append(arr)
+
 
         state = new_state
         creward += reward
 
         if done:
+            if render and episode_number != 0:
+                fname = 'vid/lunarlander_{}'.format(episode_number)
+                arr = np.array(frames)
+                np.save(fname,arr)
             return creward
 
 
 u = 0.0
-sigma = 0.5
+sigma = 0.4
 b = 0.0
 
 u = np.repeat(u, P)
@@ -141,21 +151,17 @@ for _ in range(150000):
         theta[n, :] = np.random.normal(u, sigma)
         r[n] = evaluate_policy(theta[n])
 
-    for i in range(P):
-        for j in range(N):
-            T[i, j] = theta[j, i] - u[i]
+    T = theta.T - np.repeat(np.array([u]).T,N,axis=1)
 
-    for i in range(P):
-        for j in range(N):
-            S[i, j] = np.divide(np.square(T[i, j]) - np.square(sigma[i]),
-                                sigma[i])
+    S = np.divide(np.square(T.T) - np.square(sigma),
+                  sigma).T
 
     mean_history.append(np.mean(r))
 
     r = r - b
     r = r.T
 
-    val_score = evaluate_policy(u, validation_env, render=False)
+    val_score = evaluate_policy(u, validation_env, render=True, episode_number=_+1)
     r_history.append(val_score)
 
     b = np.mean(r_history[-HISTORY_SIZE:])
