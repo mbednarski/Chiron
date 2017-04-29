@@ -97,12 +97,12 @@ class Visualizer:
 def dd():
     fig = plt.figure()
     v = Visualizer(fig, [211, 212])
-    root_dir = r'C:\p\github\Chiron\chiron\agents\monitor'
+    root_dir = r'/home/xevaquor/code/chiron/chiron/agents/monitor'
     c = Combiner(root_dir)
     c.select_latest_session()
     x = c.get_series('epsilon', 'epsilon')
     r = c.get_series('reward', 'episode_reward')
-    a = RollingAverageSeries('Average 100', r, window=100)
+    a = RollingAverageSeries('average 100', r, window=100)
     v.append(x, 0)
     v.append(r, 1)
     v.append(a, 1)

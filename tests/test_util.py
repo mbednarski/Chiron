@@ -2,6 +2,7 @@ import numpy as np
 
 import chiron.agents.util as au
 import gym
+from chiron.util import pairwise
 
 
 def test_get_space_state_is_discrete():
@@ -20,6 +21,21 @@ def test_get_action_space_is_discrete():
     env2 = gym.make('MountainCarContinuous-v0')
     assert not au.action_space_is_discrete(env2)
     env2.close()
+
+
+def test_pairwise():
+    sequence = [0,1,2,3,4,5]
+
+    pairs = list(pairwise(sequence))
+
+    assert pairs == [
+        (0,1),
+        (1,2),
+        (2,3),
+        (3,4),
+        (4,5)
+    ]
+
 
 
 def naive(N, P, T, theta, u, S, sigma):

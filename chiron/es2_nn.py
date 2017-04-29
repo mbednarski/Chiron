@@ -10,6 +10,7 @@ import itertools
 import multiprocessing as mp
 from joblib import Parallel, delayed
 import time
+from chiron.agents.pepg import FeedForwardNeuralNetPolicy
 
 logging.disable(logging.CRITICAL)
 np.seterr('raise')
@@ -26,15 +27,15 @@ n_actions = env.action_space.n
 n_hidden = 32
 n_hidden2 = 32
 
-P = (n_features + 1) * n_hidden + (n_hidden + 1) * n_actions  # number of parameters
-N = 500  # number of histories
+P = (n_features + 1) * n_hidden + (n_hidden + 1) * n_hidden2 + (n_hidden2 + 1) * n_actions  # number of parameters
+N = 200  # number of histories
 
 T = np.zeros((P, N))
 S = np.zeros((P, N))
 
 alpha = 0.0001
 alpha_sigma = alpha * 0.1
-alpha_u = alpha * 2
+alpha_u = alpha
 HISTORY_SIZE = 50
 
 
@@ -45,21 +46,13 @@ def softmax(x):
 
 
 def unpack(model):
-    # shapes = [
-    #     (n_features, n_hidden),
-    #     (1, n_hidden),
-    #     (n_hidden, n_hidden2),
-    #     (1, n_hidden2),
-    #     (n_hidden2, n_actions),
-    #     (1, n_actions),
-    # ]
-
-
     shapes = [
         (n_features, n_hidden),
         (1, n_hidden),
-        (n_hidden, n_actions),
-        (1, n_actions)
+        (n_hidden, n_hidden2),
+        (1, n_hidden2),
+        (n_hidden2, n_actions),
+        (1, n_actions),
     ]
     result = []
     start = 0
@@ -80,7 +73,7 @@ def choose_action(a1):
 
 
 def model(theta, state):
-    w, b, w2, b2 = unpack(theta)
+    w, b, w2, b2, w3, b3 = unpack(theta)
 
     z = state.dot(w) + b
     a1 = np.tanh(z)
@@ -88,17 +81,17 @@ def model(theta, state):
     z2 = a1.dot(w2) + b2
     a2 = np.tanh(z2)
 
-    action = choose_action(a2)
+    z3 = a2.dot(w3) + b3
+    a3 = np.tanh(z3)
 
-    # z3 = a2.dot(w3) + b3
-    # a3 = np.tanh(z3)
-    #
-    # action = choose_action(a3)
+    action = choose_action(a3)
     # if action != 0:
     #     print('x')
 
     return action
 
+
+nn = FeedForwardNeuralNetPolicy(n_features, n_actions, hidden_layers=[32, 32])
 
 def evaluate_policy(theta, env=None, render=False, episode_number=0):
     if env is None:
@@ -109,7 +102,8 @@ def evaluate_policy(theta, env=None, render=False, episode_number=0):
     frames = []
 
     for t in itertools.count():
-        action = model(theta, state)
+        # action = model(theta, state)
+        action = nn.select_action(state)
 
         new_state, reward, done, _ = env.step(action)
 
@@ -129,7 +123,7 @@ def evaluate_policy(theta, env=None, render=False, episode_number=0):
 
 
 u = 0.0
-sigma = 0.55
+sigma = 0.5
 b = 0.0
 
 u = np.repeat(u, P)
@@ -163,18 +157,19 @@ for _ in range(150000):
     r = np.zeros(N)
     assert theta.shape == (N, P)
     starttime = time.time()
-    for n in range(N):
-        theta[n, :] = np.random.normal(u, sigma)
     # for n in range(N):
     #     theta[n, :] = np.random.normal(u, sigma)
-    #     r[n] = evaluate_policy(theta[n])
+    for n in range(N):
+        theta[n, :] = np.random.normal(u, sigma)
+        nn.set_params(theta[n])
+        r[n] = evaluate_policy(theta[n])
 
 
-    results = Parallel(n_jobs=3)(
-        delayed(singleiter)(theta[n]) for n in range(N)
-    )
+    # results = Parallel(n_jobs=3)(
+    #     delayed(singleiter)(theta[n]) for n in range(N)
+    # )
 
-    r = np.array(results)
+    # r = np.array(results)
     # theta = np.array([x[0] for x in results])
 
     elapsed = time.time() - starttime
@@ -211,7 +206,7 @@ for _ in range(150000):
     plt.plot(mean_history)
     plt.plot(cross_history)
     plt.legend(['validation', 'mean', 'benchmark'])
-    plt.savefig('xd55_x2.png')
+    plt.savefig('xd.png')
     plt.pause(0.05)
 
     # b = np.mean(r_history[-HISTORY_SIZE:])

@@ -14,7 +14,7 @@ problem = 'CartPole-v1'
 env = gym.make(problem)
 
 validation_env = gym.make(problem)
-validation_env = gym.wrappers.Monitor(validation_env, directory='/tmp/es/2', force=True)
+validation_env = gym.wrappers.Monitor(validation_env, directory='/tmp/es/222', force=True)
 
 n_features = env.observation_space.shape[0]
 n_actions = env.action_space.n

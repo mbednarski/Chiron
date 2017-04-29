@@ -14,17 +14,18 @@ font = ImageFont.truetype('liberation.ttf', 32)
 fi = 0
 
 for episode_nr, episode_file in tqdm(files_ord):
-    arr = np.load('vid/' + episode_file)
+    arr = np.load('vid/' + episode_file)['arr_0.npy']
     n_steps = arr.shape[0]
     for step in range(n_steps):
         i = Image.fromarray(arr[step, :,:], 'RGB')
         draw = ImageDraw.Draw(i)
-        draw.text((10,10), 'PGPE\nσ=0.4\nEpisode: {}'.format(episode_nr), (255,255,255), font)
+        draw.text((10,10), 'PGPE Parallel\nσ=0.5\nN=500\nEpisode: {}'.format(episode_nr), (255,255,255), font)
         i.save('frames/{:010d}.png'.format(fi))
         fi += 1
         del draw
         del i
 
+#ffmpeg -framerate 180 -i %10d.png ../output.mp4
 
 
 
